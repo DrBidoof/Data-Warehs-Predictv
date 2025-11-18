@@ -92,7 +92,7 @@ print(df_theft5000.isnull().sum())
 print("\n=== Missing Data %: THEFT ===")
 print(df_theft5000.isnull().mean() * 100)
 
-# ===== 4B. MISSING DATA BAR CHARTS (OPTION 1) =====
+# ===== 4B. MISSING DATA BAR CHARTS  =====
 
 for name, df in [("Homicide", df_homicide), ("Theft Over $5000", df_theft5000)]:
     missing = df.isnull().sum()
