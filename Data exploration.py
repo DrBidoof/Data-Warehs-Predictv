@@ -116,8 +116,8 @@ for name, df in [("Homicide", df_homicide), ("Theft Over $5000", df_theft5000)]:
 plt.figure(figsize=(10, 6))
 print("Homicide columns:", df_homicide.columns.tolist())
 
-if "Homicide_Type" in df_homicide.columns:
-    sns.countplot(data=df_homicide, x="Homicide_Type")
+if "HOMICIDE_TYPE" in df_homicide.columns:
+    sns.countplot(data=df_homicide, x="HOMICIDE_TYPE")
     plt.title("Homicide Counts by Type")
     plt.xticks(rotation=45)
     plt.tight_layout()
@@ -128,14 +128,14 @@ else:
 # --- Theft by Object of Theft ---
 plt.figure(figsize=(10, 6))
 
-if "Object_of_Theft" in df_theft5000.columns:
-    sns.countplot(data=df_theft5000, x="Object_of_Theft")
+if "OFFENCE" in df_theft5000.columns:
+    sns.countplot(data=df_theft5000, x="OFFENCE")
     plt.title("Theft Over $5000 by Item Stolen")
     plt.xticks(rotation=45)
     plt.tight_layout()
     plt.show()
 else:
-    print("Column 'Object_of_Theft' not found. Available columns:", df_theft5000.columns.tolist())
+    print("Column 'OFFENCE' not found. Available columns:", df_theft5000.columns.tolist())
 
 # --- Correlation heatmaps (only if at least 2 numeric cols) ---
 
@@ -159,7 +159,7 @@ else:
 
 # ===== 6. HOMICIDES BY YEAR =====
 
-possible_year_cols = ["Year", "year", "YEAR", "Reported_Year", "Occurrence_Year"]
+possible_year_cols = ["Year", "year", "YEAR", "Reported_Year", "OCC_YEAR"]
 
 year_col_h = None
 for col in possible_year_cols:
@@ -214,7 +214,8 @@ def add_date_parts(df):
     date_cols = [col for col in df.columns if "date" in col.lower()]
 
     if len(date_cols) == 0:
-        return None  # No date column
+        print("No date-like column found, skipping date parts.")
+        return df  # return df unchanged if no date column
 
     date_col = date_cols[0]
     df[date_col] = pd.to_datetime(df[date_col], errors="coerce")
@@ -228,8 +229,8 @@ def add_date_parts(df):
     return df
 
 # Apply to both datasets (if date column exists)
-df_homicide = add_date_parts(df_homicide) or df_homicide
-df_theft5000 = add_date_parts(df_theft5000) or df_theft5000
+df_homicide = add_date_parts(df_homicide)
+df_theft5000 = add_date_parts(df_theft5000)
 
 # --- Seasonal Plot: Homicides ---
 if "Month_Name" in df_homicide.columns:
