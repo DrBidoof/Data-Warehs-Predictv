@@ -13,10 +13,10 @@ This script performs:
 from dotenv import load_dotenv
 import os
 import pandas as pd
-
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans
+import joblib
 
 # ============================================================
 # 0. LOAD PATHS SAFELY
@@ -156,5 +156,18 @@ scaler = StandardScaler(with_mean=False)
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-print("\nPart 2 complete — Dataset transformed and ready for modelling.")
-print("Proceed to Part 3 for model training and evaluation.")
+output_dir = "exports"
+os.makedirs(output_dir, exist_ok=True)
+
+# Save datasets
+pd.DataFrame(X_train_scaled).to_csv(f"{output_dir}/X_train.csv", index=False)
+pd.DataFrame(X_test_scaled).to_csv(f"{output_dir}/X_test.csv", index=False)
+pd.DataFrame(y_train).to_csv(f"{output_dir}/y_train.csv", index=False)
+pd.DataFrame(y_test).to_csv(f"{output_dir}/y_test.csv", index=False)
+
+# Save scaler for future use
+joblib.dump(scaler, f"{output_dir}/scaler.pkl")
+
+print("\n=== EXPORT COMPLETE ===")
+print("Saved: X_train.csv, X_test.csv, y_train.csv, y_test.csv, scaler.pkl")
+print("Proceed to Part 3 to build and evaluate predictive models.")
