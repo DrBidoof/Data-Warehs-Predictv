@@ -156,6 +156,11 @@ scaler = StandardScaler(with_mean=False)
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+
+
+# ============================================================
+# 9. EXPORT TRANSFORMED DATA FOR PART 3
+# ============================================================
 output_dir = "exports"
 os.makedirs(output_dir, exist_ok=True)
 
