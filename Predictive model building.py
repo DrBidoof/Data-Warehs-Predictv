@@ -40,6 +40,10 @@ y_test = pd.read_csv("exports/y_test.csv").values.ravel()
 
 # Load scaler
 scaler = joblib.load("exports/scaler.pkl")
+# added after goup meeting
+
+X_train_scaled = scaler.transform(X_train.values)
+X_test_scaled = scaler.transform(X_test.values)
 
 # ============================================================
 # 2. TRAIN MODELS
@@ -51,7 +55,7 @@ log_reg = LogisticRegression(
     multi_class="ovr",
     class_weight="balanced"
 )
-log_reg.fit(X_train, y_train)
+log_reg.fit(X_train_scaled, y_train)
 
 # ----- Decision Tree -----
 tree = DecisionTreeClassifier(
@@ -64,7 +68,7 @@ tree.fit(X_train, y_train)
 # 3. PREDICTIONS
 # ============================================================
 
-y_pred_lr = log_reg.predict(X_test)
+y_pred_lr = log_reg.predict(X_test_scaled)
 y_pred_tree = tree.predict(X_test)
 
 # ============================================================
@@ -90,7 +94,7 @@ classes = np.unique(y_train)
 y_test_bin = label_binarize(y_test, classes=classes)
 
 # Logistic Regression ROC
-y_prob_lr = log_reg.predict_proba(X_test)
+y_prob_lr = log_reg.predict_proba(X_test_scaled)
 auc_lr = roc_auc_score(y_test_bin, y_prob_lr, multi_class="ovr")
 
 # Decision Tree ROC
