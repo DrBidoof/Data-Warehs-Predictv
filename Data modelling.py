@@ -137,6 +137,38 @@ y = df_model[target_col]
 X_encoded = pd.get_dummies(X, drop_first=True)
 print("Encoded feature matrix shape:", X_encoded.shape)
 
+
+# ============================================================
+# REMOVE LOCATION / AREA LEAKAGE FEATURES
+# ============================================================
+
+leakage_features = [
+    # direct / near-direct target leaks
+    "LOCATION_TYPE",
+    "OFFENCE",
+    "MCI_CATEGORY",
+
+    # geographic proxies
+    "DIVISION",
+    "HOOD_",
+    "NEIGHBOURHOOD",
+    "ZONE",
+    "LAT_WGS84",
+    "LONG_WGS84",
+    "x",
+    "y",
+]
+
+cols_to_drop = [
+    col for col in X_encoded.columns
+    if any(key in col for key in leakage_features)
+]
+
+print("Dropping potential leakage columns:", cols_to_drop)
+
+X_encoded = X_encoded.drop(columns=cols_to_drop, errors="ignore")
+print("After removing leakage features:", X_encoded.shape)
+
 # ============================================================
 # 7. TRAIN / TEST SPLIT
 # ============================================================
@@ -160,5 +192,27 @@ scaler = StandardScaler(with_mean=False)
 X_train_scaled = scaler.fit_transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
+
+# ============================================================
+# 9. EXPORT DATASETS & SCALER FOR PART 3
+# ============================================================
+
+output_dir = "exports"
+os.makedirs(output_dir, exist_ok=True)
+
+# Save X_train, X_test, y_train, y_test
+X_train.to_csv(os.path.join(output_dir, "X_train.csv"), index=False)
+X_test.to_csv(os.path.join(output_dir, "X_test.csv"), index=False)
+y_train.to_csv(os.path.join(output_dir, "y_train.csv"), index=False)
+y_test.to_csv(os.path.join(output_dir, "y_test.csv"), index=False)
+
+# Save scaler
+joblib.dump(scaler, os.path.join(output_dir, "scaler.pkl"))
+
+print(f"\nExports saved to folder: {output_dir}")
+
+
 print("\nPart 2 complete — Dataset transformed and ready for modelling.")
 print("Proceed to Part 3 for model training and evaluation.")
+
+
