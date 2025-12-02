@@ -11,8 +11,22 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import calendar
+from pathlib import Path
+import time
 
 load_dotenv()
+
+# Setup output directory for saved figures (used when running headless)
+OUT_DIR = Path("outputs") / "exploration"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+
+def _save_fig(name=None):
+    ts = int(time.time()*1000)
+    fname = f"{ts}" if name is None else f"{name}_{ts}"
+    path = OUT_DIR / f"{fname}.png"
+    plt.savefig(path, bbox_inches='tight')
+    plt.close()
+    return path
 
 # ==== 0. LOAD PATHS SAFELY ====
 
@@ -108,34 +122,34 @@ for name, df in [("Homicide", df_homicide), ("Theft Over $5000", df_theft5000)]:
     plt.ylabel("Number of Missing Values")
     plt.title(f"Missing Values per Column – {name} Dataset")
     plt.tight_layout()
-    plt.show()
+    _save_fig(f"missing_values_{name}")
 
 # ==== 5. BASIC VISUALIZATIONS (CATEGORICAL & CORR HEATMAPS) ====
 
 # --- Homicide by Type ---
-plt.figure(figsize=(10, 6))
-print("Homicide columns:", df_homicide.columns.tolist())
+    plt.figure(figsize=(10, 6))
+    print("Homicide columns:", df_homicide.columns.tolist())
 
-if "HOMICIDE_TYPE" in df_homicide.columns:
-    sns.countplot(data=df_homicide, x="HOMICIDE_TYPE")
-    plt.title("Homicide Counts by Type")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-else:
-    print("Column 'Homicide_Type' not found. Available columns:", df_homicide.columns.tolist())
+    if "HOMICIDE_TYPE" in df_homicide.columns:
+        sns.countplot(data=df_homicide, x="HOMICIDE_TYPE")
+        plt.title("Homicide Counts by Type")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        _save_fig("homicide_by_type")
+    else:
+        print("Column 'Homicide_Type' not found. Available columns:", df_homicide.columns.tolist())
 
 # --- Theft by Object of Theft ---
-plt.figure(figsize=(10, 6))
+    plt.figure(figsize=(10, 6))
 
-if "OFFENCE" in df_theft5000.columns:
-    sns.countplot(data=df_theft5000, x="OFFENCE")
-    plt.title("Theft Over $5000 by Item Stolen")
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    plt.show()
-else:
-    print("Column 'OFFENCE' not found. Available columns:", df_theft5000.columns.tolist())
+    if "OFFENCE" in df_theft5000.columns:
+        sns.countplot(data=df_theft5000, x="OFFENCE")
+        plt.title("Theft Over $5000 by Item Stolen")
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        _save_fig("theft_by_offence")
+    else:
+        print("Column 'OFFENCE' not found. Available columns:", df_theft5000.columns.tolist())
 
 # --- Correlation heatmaps (only if at least 2 numeric cols) ---
 
@@ -144,7 +158,7 @@ if corr_homicide.shape[0] > 1 and corr_homicide.shape[1] > 1:
     sns.heatmap(corr_homicide, annot=True, cmap="coolwarm")
     plt.title("Homicide Correlation Heatmap")
     plt.tight_layout()
-    plt.show()
+    _save_fig("homicide_corr_heatmap")
 else:
     print("Not enough numeric columns for homicide correlation heatmap.")
 
@@ -153,7 +167,7 @@ if corr_theft.shape[0] > 1 and corr_theft.shape[1] > 1:
     sns.heatmap(corr_theft, annot=True, cmap="coolwarm")
     plt.title("Theft Correlation Heatmap")
     plt.tight_layout()
-    plt.show()
+    _save_fig("theft_corr_heatmap")
 else:
     print("Not enough numeric columns for theft correlation heatmap.")
 
@@ -179,7 +193,7 @@ if year_col_h:
     plt.ylabel("Count")
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
+    _save_fig("homicides_over_time")
 else:
     print("No year column found in homicide dataset.")
 
@@ -203,7 +217,7 @@ if year_col_t:
     plt.ylabel("Count")
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
+    _save_fig("theft_over_time")
 else:
     print("No year column found in theft dataset.")
 
@@ -244,7 +258,7 @@ if "Month_Name" in df_homicide.columns:
     plt.xlabel("Month")
     plt.ylabel("Count")
     plt.tight_layout()
-    plt.show()
+    _save_fig("homicide_seasonal")
 else:
     print("No usable date column for homicide seasonal pattern.")
 
@@ -260,6 +274,6 @@ if "Month_Name" in df_theft5000.columns:
     plt.xlabel("Month")
     plt.ylabel("Count")
     plt.tight_layout()
-    plt.show()
+    _save_fig("theft_seasonal")
 else:
     print("No usable date column for theft seasonal pattern.")

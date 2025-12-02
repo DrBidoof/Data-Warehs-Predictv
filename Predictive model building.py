@@ -28,6 +28,8 @@ from sklearn.metrics import (
 from sklearn.preprocessing import label_binarize
 import matplotlib.pyplot as plt
 import joblib
+from pathlib import Path
+import time
 
 # ============================================================
 # 1. LOAD EXPORTED DATA FROM PART 2
@@ -119,7 +121,18 @@ plt.ylabel("True Positive Rate")
 plt.legend()
 plt.grid()
 plt.tight_layout()
-plt.show()
+# Save ROC figure instead of showing
+OUT_DIR = Path("outputs") / "predictive"
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+def _save_fig(name=None):
+    ts = int(time.time()*1000)
+    fname = f"{ts}" if name is None else f"{name}_{ts}"
+    path = OUT_DIR / f"{fname}.png"
+    plt.savefig(path, bbox_inches='tight')
+    plt.close()
+    return path
+
+_save_fig("roc_curves")
 
 # ============================================================
 # 6. MODEL RECOMMENDATION
@@ -157,7 +170,7 @@ tree_importances.head(15).plot(kind='bar')
 plt.title("Decision Tree - Top 15 Feature Importances")
 plt.ylabel("Importance Score")
 plt.tight_layout()
-plt.show()
+_save_fig("tree_importances")
 
 # ============================================================
 # FEATURE IMPORTANCE -- LOGISTIC REGRESSION
@@ -174,5 +187,5 @@ lr_coefs.head(15).plot(kind='bar', color='green')
 plt.title("Logistic Regression - Top 15 Feature Importances (|coefficients|)")
 plt.ylabel("Mean |Coefficient| Across Classes")
 plt.tight_layout()
-plt.show()
+_save_fig("lr_importances")
 
